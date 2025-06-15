@@ -1,6 +1,7 @@
 from functools import lru_cache
 from pathlib import Path
-from pydantic import model_validator, Field
+
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -19,15 +20,17 @@ class Settings(BaseSettings):
     )
 
     @model_validator(mode="after")
-    def populate_db_urls(self) -> 'Settings':
+    def populate_db_urls(self) -> "Settings":
         self.DB_URL = self.__construct_db_url()
         return self
 
     def __construct_db_url(self) -> str:
-        return (f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@"
-                f"{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}")
+        return (
+            f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@"
+            f"{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        )
 
 
 @lru_cache
-def get_settings() -> 'Settings':
+def get_settings() -> "Settings":
     return Settings()
