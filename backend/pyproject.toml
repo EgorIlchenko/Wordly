@@ -16,7 +16,8 @@ dependencies = [
     "psycopg2-binary (>=2.9.10,<3.0.0)",
     "langchain (>=0.3.26,<0.4.0)",
     "langchain-groq (>=0.3.2,<0.4.0)",
-    "groq (>=0.28.0,<0.29.0)"
+    "groq (>=0.28.0,<0.29.0)",
+    "pyspellchecker (>=0.8.3,<0.9.0)",
 ]
 
 
@@ -33,8 +34,17 @@ alembic = "^1.16.1"
 [tool.black]
 line-length = 100
 target-version = ["py312"]
+exclude = '''
+/(
+    alembic
+  | migrations
+  | env
+  | venv
+)/
+'''
 
 [tool.isort]
 profile = "black"
 line_length = 100
 known_first_party = ["app"]
+skip = ["alembic", "migrations", "env", "venv"]

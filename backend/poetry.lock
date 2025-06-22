@@ -1277,6 +1277,18 @@ files = [
 ]
 
 [[package]]
+name = "pyspellchecker"
+version = "0.8.3"
+description = "Pure python spell checker based on work by Peter Norvig"
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+files = [
+    {file = "pyspellchecker-0.8.3-py3-none-any.whl", hash = "sha256:e993076e98b0da5a99b7cc31085c3022c77a9dc37c5e95f5cf6304b5dbb8b9d2"},
+    {file = "pyspellchecker-0.8.3.tar.gz", hash = "sha256:cb06eeafe124837f321e0d02f8e21deab713e966e28e0360319a28a089c43978"},
+]
+
+[[package]]
 name = "python-dotenv"
 version = "1.1.0"
 description = "Read key-value pairs from a .env file and set them as environment variables"
@@ -1713,4 +1725,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "11065c3b96c98a47587486c3ecf2bfb74ca93670181f9e17eec911a8be73da73"
+content-hash = "720580a58f8baa935d0e8e8f614a9664ff7f21f0c2937133286821e9afea9f5d"
