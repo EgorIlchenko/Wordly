@@ -1,0 +1,39 @@
+name: Backend CI
+
+on:
+  pull_request:
+    branches: [ develop ]
+
+jobs:
+  backend-checks:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install Poetry
+      run: |
+        pip install poetry
+        poetry config virtualenvs.create false
+
+    - name: Install dependencies
+      run: poetry install --no-interaction --no-root
+
+    - name: Run black
+      run: poetry run black . --check
+
+    - name: Run isort
+      run: poetry run isort . --check-only
+
+    - name: Run flake8
+      run: poetry run flake8 app
