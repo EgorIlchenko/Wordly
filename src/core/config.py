@@ -23,21 +23,23 @@ class DatabaseConfig(BaseModel):
     pool_size: int = 50
 
 
+class LangchainConfig(BaseModel):
+    llm_api_key: SecretStr
+    translation_prompt: str
+
+
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=(".env", ".env.template"),
+        case_sensitive=False,
+        env_nested_delimiter="__",
+        env_prefix="APP_CONFIG__",
+        extra="ignore",
+    )
     run: RunConfig = RunConfig()
     api: ApiPrefix = ApiPrefix()
     db: DatabaseConfig
-    # Database config
-
-
-    # LLM
-    LLM_API_KEY: SecretStr
-    TRANSLATION_PROMPT: str
-
-    model_config = SettingsConfigDict(
-        env_file=str(Path(__file__).parent.parent / ".env"),
-        extra="ignore",
-    )
+    llm: LangchainConfig
 
 
 @lru_cache

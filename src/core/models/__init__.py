@@ -1,5 +1,11 @@
+__all__ = (
+    "db_helper",
+    "UserSession",
+    "Word",
+    "UserWord",
+)
+
 from .user_session import UserSession
 from .user_word import UserWord
 from .word import Word
-
-__all__ = ["UserSession", "Word", "UserWord"]
+from .db_helper import db_helper
