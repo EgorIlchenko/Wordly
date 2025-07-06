@@ -1,7 +1,7 @@
 from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, func
 from sqlalchemy.orm import Mapped, mapped_column
 
-from db.base import Base
+from core.models.base import Base
 
 
 class UserWord(Base):
