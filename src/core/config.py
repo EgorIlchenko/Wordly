@@ -1,11 +1,22 @@
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import Field, SecretStr, model_validator
+from pydantic import Field, SecretStr, model_validator, BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+class RunConfig(BaseModel):
+    host: str = "0.0.0.0"
+    port: int = 8000
+
+
+class ApiPrefix(BaseModel):
+    prefix: str = "/api"
+
+
 class Settings(BaseSettings):
+    run: RunConfig = RunConfig()
+    api: ApiPrefix = ApiPrefix()
     # Database config
     DB_URL: str = Field("", validation_alias="DB_URL")
     DB_USER: str
