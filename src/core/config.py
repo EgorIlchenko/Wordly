@@ -3,6 +3,7 @@ from pathlib import Path
 
 from pydantic import Field, SecretStr, model_validator, BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import PostgresDsn
 
 
 class RunConfig(BaseModel):
@@ -14,16 +15,20 @@ class ApiPrefix(BaseModel):
     prefix: str = "/api"
 
 
+class DatabaseConfig(BaseModel):
+    url: PostgresDsn
+    echo: bool = False
+    echo_pool: bool = False
+    max_overflow: int = 10
+    pool_size: int = 50
+
+
 class Settings(BaseSettings):
     run: RunConfig = RunConfig()
     api: ApiPrefix = ApiPrefix()
+    db: DatabaseConfig
     # Database config
-    DB_URL: str = Field("", validation_alias="DB_URL")
-    DB_USER: str
-    DB_PASS: str
-    DB_HOST: str
-    DB_PORT: str
-    DB_NAME: str
+
 
     # LLM
     LLM_API_KEY: SecretStr
@@ -33,17 +38,6 @@ class Settings(BaseSettings):
         env_file=str(Path(__file__).parent.parent / ".env"),
         extra="ignore",
     )
-
-    @model_validator(mode="after")
-    def populate_db_urls(self) -> "Settings":
-        self.DB_URL = self.__construct_db_url()
-        return self
-
-    def __construct_db_url(self) -> str:
-        return (
-            f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@"
-            f"{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
-        )
 
 
 @lru_cache
