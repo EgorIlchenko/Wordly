@@ -10,7 +10,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: backend
+        working-directory: src
 
     steps:
     - name: Checkout code

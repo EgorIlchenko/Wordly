@@ -5,8 +5,8 @@ from typing import Optional
 from langchain.schema import HumanMessage
 from langchain_groq import ChatGroq
 
-from backend.app.core.config import get_settings
-from backend.app.services.translator.schema import TranslationResponse
+from core.config import get_settings
+from services.translator.schema import TranslationResponse
 
 settings = get_settings()
 
