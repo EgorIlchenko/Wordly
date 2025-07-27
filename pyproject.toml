@@ -19,6 +19,7 @@ dependencies = [
     "groq (>=0.28.0,<0.29.0)",
     "pyspellchecker (>=0.8.3,<0.9.0)",
     "pydantic[email] (>=2.11.7,<3.0.0)",
+    "greenlet (>=3.2.3,<4.0.0)",
 ]
 
 
