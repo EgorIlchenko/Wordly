@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, constr
+from pydantic import BaseModel, EmailStr, constr, ConfigDict
 from typing import Optional
 from datetime import datetime
 
@@ -16,6 +16,8 @@ class UserRead(BaseModel):
     avatar_url: Optional[str] = None
     is_verified: bool
     created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserInDB(UserRead):
