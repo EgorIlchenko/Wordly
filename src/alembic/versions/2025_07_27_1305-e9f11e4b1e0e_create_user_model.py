@@ -41,9 +41,6 @@ def upgrade() -> None:
     )
     op.create_index(op.f("ix_users_id"), "users", ["id"], unique=False)
     op.create_index(op.f("ix_users_email"), "users", ["email"], unique=True)
-    op.drop_table("words")
-    op.drop_table("user_words")
-    op.drop_table("user_sessions")
 
 
 def downgrade() -> None:
