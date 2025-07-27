@@ -1,8 +1,14 @@
 from fastapi import APIRouter
 
-router = APIRouter(tags=["main"])
+from users.routes import router as users_router
 
+from core.config import get_settings
 
-@router.get("")
-async def get_all_users():
-    pass
+settings = get_settings()
+
+api_router = APIRouter()
+api_router.include_router(
+    users_router,
+    prefix=settings.api.v1.users,
+    tags=["Users"],
+)
