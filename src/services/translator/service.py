@@ -10,13 +10,13 @@ from services.translator.schema import TranslationResponse
 
 settings = get_settings()
 
-GROQ_API_KEY = settings.LLM_API_KEY
+GROQ_API_KEY = settings.llm.llm_api_key
 
 
 async def translate_word(word: str) -> Optional[TranslationResponse]:
     def sync_call():
         llm = ChatGroq(api_key=GROQ_API_KEY, model="llama-3.3-70b-versatile")
-        prompt = settings.TRANSLATION_PROMPT.format(word=word)
+        prompt = settings.llm.translation_prompt.format(word=word)
         response = llm.invoke([HumanMessage(content=prompt)])
         return response.content.strip()
 

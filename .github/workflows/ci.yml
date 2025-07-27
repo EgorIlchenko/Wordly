@@ -36,4 +36,4 @@ jobs:
       run: poetry run isort . --check-only
 
     - name: Run flake8
-      run: poetry run flake8 app
+      run: poetry run flake8 .
