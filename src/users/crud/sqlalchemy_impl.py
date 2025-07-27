@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from users.models import User
 from users.schemas import UserCreate
-from users.crud.base import UserStorageProtocol
+from .base import UserStorageProtocol
 
 
 class SQLAlchemyUserStorage(UserStorageProtocol):
