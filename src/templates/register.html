@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация</title>
+</head>
+<body>
+    <h1>Регистрация</h1>
+
+    {% if error %}
+        <div style="color: red;">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" action="/api/v1/users/register">
+        <label>Email:</label><br>
+        <input type="email" name="email" value="{{ email or '' }}" required><br><br>
+
+        <label>Пароль:</label><br>
+        <input type="password" name="password" required><br><br>
+
+        <label>Имя (необязательно):</label><br>
+        <input type="text" name="full_name" value="{{ full_name or '' }}"><br><br>
+
+        <button type="submit">Зарегистрироваться</button>
+    </form>
+</body>
+</html>
