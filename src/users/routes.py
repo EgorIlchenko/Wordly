@@ -30,6 +30,7 @@ async def register_user(
     email: str = Form(...),
     password: str = Form(...),
     full_name: str = Form(None),
+    is_subscribed: bool = Form(False),
     session: AsyncSession = Depends(db_helper.session_getter),
     storage: UserStorageProtocol = Depends(get_user_storage),
 ):
@@ -37,6 +38,7 @@ async def register_user(
         "email": email,
         "password": password,
         "full_name": full_name,
+        "is_subscribed": is_subscribed,
     }
     user_data = UserCreate.model_validate(raw_data)
 

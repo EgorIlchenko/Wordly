@@ -8,6 +8,7 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: constr(min_length=8, max_length=20)
     full_name: Optional[str] = None
+    is_subscribed: bool = False
 
 
 class UserRead(BaseModel):
