@@ -1,27 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Регистрация</title>
-</head>
-<body>
-    <h1>Регистрация</h1>
+<form method="post" onsubmit="return validateForm()">
+  <label>Email</label>
+  <input type="email" name="email" value="{{ email or '' }}" required /><br />
 
-    {% if error %}
-        <div style="color: red;">{{ error }}</div>
-    {% endif %}
+  <label>Full name</label>
+  <input type="text" name="full_name" value="{{ full_name or '' }}" required /><br />
 
-    <form method="post" action="/api/v1/users/register">
-        <label>Email:</label><br>
-        <input type="email" name="email" value="{{ email or '' }}" required><br><br>
+  <label>Password</label>
+  <input type="password" name="password" required /><br />
 
-        <label>Пароль:</label><br>
-        <input type="password" name="password" required><br><br>
+  <!-- Подписка -->
+  <label>
+    <input type="checkbox" name="is_subscribed" />
+    Хочу получать рассылки
+  </label><br />
 
-        <label>Имя (необязательно):</label><br>
-        <input type="text" name="full_name" value="{{ full_name or '' }}"><br><br>
+  <!-- Обработка ПД -->
+  <label>
+    <input type="checkbox" id="privacy_agree" />
+    Согласен на обработку персональных данных
+  </label>
+  <div id="privacy_error" style="color:red; display:none;">
+    Необходимо согласиться на обработку ПД
+  </div>
 
-        <button type="submit">Зарегистрироваться</button>
-    </form>
-</body>
-</html>
+  <button type="submit">Зарегистрироваться</button>
+</form>
+
+<script>
+function validateForm() {
+  const agree = document.getElementById('privacy_agree');
+  const error = document.getElementById('privacy_error');
+  if (!agree.checked) {
+    error.style.display = 'block';
+    return false;
+  } else {
+    error.style.display = 'none';
+    return true;
+  }
+}
+</script>
