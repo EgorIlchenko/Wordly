@@ -1,5 +1,3 @@
-__all__ = (
-    "User",
-)
+__all__ = ("User",)
 
 from .models import User

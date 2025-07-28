@@ -1,7 +1,8 @@
-from uuid import UUID
-from pydantic import BaseModel, EmailStr, constr, ConfigDict
-from typing import Optional
 from datetime import datetime
+from typing import Optional
+from uuid import UUID
+
+from pydantic import BaseModel, ConfigDict, EmailStr, constr
 
 
 class UserCreate(BaseModel):

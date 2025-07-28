@@ -1,15 +1,14 @@
-from typing import Optional
-
-from fastapi import APIRouter, Request, Form, Depends
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.status import HTTP_302_FOUND
 
 from core.models import db_helper
+
+from .crud import SQLAlchemyUserStorage, UserStorageProtocol
 from .schemas import UserCreate
 from .services import create_user
-from .crud import SQLAlchemyUserStorage, UserStorageProtocol
 
 router = APIRouter(
     tags=["Users"],
@@ -53,5 +52,5 @@ async def register_user(
                 "error": str(e),
                 "email": form.get("email"),
                 "full_name": form.get("full_name"),
-            }
+            },
         )

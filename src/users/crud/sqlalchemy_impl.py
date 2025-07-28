@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from users.models import User
 from users.schemas import UserCreate
+
 from .base import UserStorageProtocol
 
 
