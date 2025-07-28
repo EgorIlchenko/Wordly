@@ -11,7 +11,8 @@ class RunConfig(BaseModel):
 
 class ApiV1Prefix(BaseModel):
     prefix: str = "/v1"
-    main: str = "/main"
+    users: str = "/users"
+    words: str = "/words"
 
 
 class ApiPrefix(BaseModel):

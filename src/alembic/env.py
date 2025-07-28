@@ -9,6 +9,7 @@ from alembic import context
 
 from core.config import get_settings
 from core.models import Base
+from users.models import User
 
 settings = get_settings()
 
