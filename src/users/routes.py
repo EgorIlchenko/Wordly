@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import APIRouter, Request, Form, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -27,18 +29,16 @@ async def get_register_page(request: Request):
 @router.post("/register")
 async def register_user(
     request: Request,
-    email: str = Form(...),
-    password: str = Form(...),
-    full_name: str = Form(None),
-    is_subscribed: bool = Form(False),
     session: AsyncSession = Depends(db_helper.session_getter),
     storage: UserStorageProtocol = Depends(get_user_storage),
 ):
+    form = await request.form()
+
     raw_data = {
-        "email": email,
-        "password": password,
-        "full_name": full_name,
-        "is_subscribed": is_subscribed,
+        "email": form.get("email"),
+        "password": form.get("password"),
+        "full_name": form.get("full_name"),
+        "is_subscribed": form.get("is_subscribed") == "on",
     }
     user_data = UserCreate.model_validate(raw_data)
 
@@ -51,7 +51,7 @@ async def register_user(
             {
                 "request": request,
                 "error": str(e),
-                "email": email,
-                "full_name": full_name
+                "email": form.get("email"),
+                "full_name": form.get("full_name"),
             }
         )

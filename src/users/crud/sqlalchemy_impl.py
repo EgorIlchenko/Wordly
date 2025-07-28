@@ -25,6 +25,7 @@ class SQLAlchemyUserStorage(UserStorageProtocol):
             email=str(user.email),
             full_name=user.full_name,
             hashed_password=hashed_password,
+            is_subscribed=user.is_subscribed,
         )
         session.add(new_user)
         await session.commit()
