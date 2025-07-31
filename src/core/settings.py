@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 class RunConfig(BaseModel):
     host: str = "0.0.0.0"
-    port: int = 8000
+    port: int = 8001
 
 
 class ApiV1Prefix(BaseModel):
@@ -23,6 +23,10 @@ class ApiV1Prefix(BaseModel):
 class ApiPrefix(BaseModel):
     prefix: str = "/api"
     v1: ApiV1Prefix = ApiV1Prefix()
+
+
+class MiddlewareConfig(BaseSettings):
+    session_secret_key: str
 
 
 class DatabaseConfig(BaseModel):
@@ -73,6 +77,7 @@ class Settings(BaseSettings):
     llm: LangchainConfig
     rabbitmq: RabbitMQConfig
     smtp: SMTPConfig
+    middleware: MiddlewareConfig
 
 
 @lru_cache
