@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from users.models import User
-from users.schemas import UserCreate
+from auth.schemas import UserCreate
 
 from .base import UserStorageProtocol
 
@@ -32,3 +32,7 @@ class SQLAlchemyUserStorage(UserStorageProtocol):
         await session.commit()
         await session.refresh(new_user)
         return new_user
+
+
+def get_user_storage() -> UserStorageProtocol:
+    return SQLAlchemyUserStorage()
