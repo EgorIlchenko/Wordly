@@ -10,7 +10,7 @@ settings = get_settings()
 celery = Celery(
     'Wordly',
     backend='rpc://',
-    broker=f'amqp://{settings.rabbitmq.user}:{settings.rabbitmq.password}@rabbitmq:5672//'
+    broker=f'amqp://{settings.rabbitmq.user}:{settings.rabbitmq.password}@localhost:5673//'
 )
 
 
