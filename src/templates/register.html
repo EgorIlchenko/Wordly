@@ -1,41 +1,40 @@
-<form method="post" onsubmit="return validateForm()">
-  <label>Email</label>
-  <input type="email" name="email" value="{{ email or '' }}" required /><br />
-
-  <label>Full name</label>
-  <input type="text" name="full_name" value="{{ full_name or '' }}" required /><br />
-
-  <label>Password</label>
-  <input type="password" name="password" required /><br />
-
-  <!-- Подписка -->
-  <label>
-      <input type="checkbox" name="is_subscribed" value="on" />
-    Хочу получать рассылки
-  </label><br />
-
-  <!-- Обработка ПД -->
-  <label>
-    <input type="checkbox" id="privacy_agree" />
-    Согласен на обработку персональных данных
-  </label>
-  <div id="privacy_error" style="color:red; display:none;">
-    Необходимо согласиться на обработку ПД
-  </div>
-
-  <button type="submit">Зарегистрироваться</button>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Wordloop</title>
+    <link rel="stylesheet" href="/assets/css/register.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="/assets/js/register.js"></script>
+</head>
+<body>
+<form class="register_form" method="post" onsubmit="return validateForm()">
+    <div class="mb-3">
+        <label for="exampleInputEmail1" class="form-label">Email address</label>
+        <input type="email" class="form-control" name="email" value="{{ email or '' }}"
+               required>
+        <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+    </div>
+    <div class="mb-3">
+        <label for="exampleInputPassword1" class="form-label">Full name</label>
+        <input type="text" class="form-control" name="full_name" value="{{ full_name or '' }}" required>
+    </div>
+    <div class="mb-3">
+        <label for="exampleInputPassword1" class="form-label">Password</label>
+        <input type="password" class="form-control" name="password" required>
+    </div>
+    <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-input" name="is_subscribed" value="on">
+        <label class="form-check-label" for="exampleCheck1">Хочу получать рассылки</label>
+    </div>
+    <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-input" id="privacy_agree">
+        <label class="form-check-label" for="exampleCheck1">Согласен на обработку персональных данных</label>
+    </div>
+    <div id="privacy_error" style="color:red; display:none;">
+        Необходимо согласиться на обработку ПД
+    </div>
+    <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
 </form>
-
-<script>
-function validateForm() {
-  const agree = document.getElementById('privacy_agree');
-  const error = document.getElementById('privacy_error');
-  if (!agree.checked) {
-    error.style.display = 'block';
-    return false;
-  } else {
-    error.style.display = 'none';
-    return true;
-  }
-}
-</script>
+</body>
