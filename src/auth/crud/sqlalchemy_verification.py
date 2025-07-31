@@ -2,7 +2,7 @@ from typing import Optional
 
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from verification_protocol import EmailVerificationStorageProtocol
+from .verification_protocol import EmailVerificationStorageProtocol
 
 from auth.models import EmailVerificationCode
 from auth.schemas import EmailVerificationCodeCreate
