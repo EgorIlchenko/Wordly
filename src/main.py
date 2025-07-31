@@ -1,8 +1,8 @@
 from contextlib import asynccontextmanager
 
-import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.sessions import SessionMiddleware
+from starlette.staticfiles import StaticFiles
 
 from api import router as api_router
 from core.models import db_helper
@@ -35,10 +35,4 @@ main_app.add_middleware(
     https_only=False,
 )
 
-if __name__ == "__main__":
-    uvicorn.run(
-        "main:main_app",
-        host=settings.run.host,
-        port=settings.run.port,
-        reload=True,
-    )
+main_app.mount("/assets", StaticFiles(directory="templates/assets"), name="assets")

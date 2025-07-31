@@ -13,6 +13,4 @@ COPY ./poetry.lock /src/
 
 RUN poetry install --no-root
 
-COPY src /src
-
-CMD ["python", "main.py"]
+COPY ./src /src
