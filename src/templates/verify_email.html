@@ -1,0 +1,10 @@
+<form method="post">
+  <label for="code">Введите код из письма</label>
+  <input type="text" name="code" required>
+  <input type="hidden" name="email" value="{{ email }}">
+  <button type="submit">Подтвердить</button>
+
+  {% if error %}
+    <p style="color: red;">{{ error }}</p>
+  {% endif %}
+</form>
