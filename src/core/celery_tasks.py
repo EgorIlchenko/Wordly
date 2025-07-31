@@ -11,7 +11,7 @@ celery = Celery(
     "Wordly",
     backend="rpc://",
     broker=f"amqp://{settings.rabbitmq.user}:{settings.rabbitmq.password}@"
-           f"{settings.rabbitmq.host}:{settings.rabbitmq.port}//",
+    f"{settings.rabbitmq.host}:{settings.rabbitmq.port}//",
 )
 
 
