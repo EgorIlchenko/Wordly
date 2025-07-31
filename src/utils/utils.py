@@ -1,10 +1,9 @@
 import random
-
 from difflib import get_close_matches
 
 from spellchecker import SpellChecker
 
-from core.config import CODE_LENGTH, NUMBER_OF_MATCHES, CUTOFF
+from core.config import CODE_LENGTH, CUTOFF, NUMBER_OF_MATCHES
 
 spell = SpellChecker()
 

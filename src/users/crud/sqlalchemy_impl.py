@@ -1,8 +1,8 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from users.models import User
 from auth.schemas import UserCreate
+from users.models import User
 
 from .user_protocol import UserStorageProtocol
 

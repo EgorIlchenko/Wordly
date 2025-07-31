@@ -4,5 +4,5 @@ __all__ = (
     "UserStorageProtocol",
 )
 
-from .user_protocol import UserStorageProtocol
 from .sqlalchemy_impl import SQLAlchemyUserStorage, get_user_storage
+from .user_protocol import UserStorageProtocol

@@ -1,9 +1,9 @@
 from typing import Optional
 
-from sqlalchemy import select, delete
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from verification_protocol import EmailVerificationStorageProtocol
 
-from auth.crud.verification_protocol import EmailVerificationStorageProtocol
 from auth.models import EmailVerificationCode
 from auth.schemas import EmailVerificationCodeCreate
 
@@ -26,7 +26,9 @@ class SQLAlchemyEmailVerificationStorage(EmailVerificationStorageProtocol):
         session: AsyncSession,
         email: str,
     ) -> Optional[EmailVerificationCode]:
-        stmt = select(EmailVerificationCode).where(EmailVerificationCode.email == email)
+        stmt = select(EmailVerificationCode).where(
+            EmailVerificationCode.email == email,
+        )
         result = await session.execute(stmt)
         code_obj = result.scalar_one_or_none()
 
@@ -39,6 +41,8 @@ class SQLAlchemyEmailVerificationStorage(EmailVerificationStorageProtocol):
         session: AsyncSession,
         email: str,
     ) -> None:
-        stmt = delete(EmailVerificationCode).where(EmailVerificationCode.email == email)
+        stmt = delete(EmailVerificationCode).where(
+            EmailVerificationCode.email == email,
+        )
         await session.execute(stmt)
         await session.commit()

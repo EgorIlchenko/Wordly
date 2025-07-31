@@ -1,11 +1,12 @@
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from auth.schemas import UserCreate
 from core.service import BaseService
+from users.crud import UserStorageProtocol
+
 from .user_service import UserService
 from .verification_service import VerificationService
-from users.crud import UserStorageProtocol
-from auth.schemas import UserCreate
 
 
 class RegistrationService(BaseService):
@@ -24,7 +25,7 @@ class RegistrationService(BaseService):
     async def register_user(self, user_data: UserCreate) -> None:
         user = await self.user_storage.get_user_by_email(
             session=self.session,
-            email=user_data.email, # noqa
+            email=user_data.email,  # noqa
         )
         if user:
             raise HTTPException(
@@ -32,7 +33,10 @@ class RegistrationService(BaseService):
                 detail="Пользователь с таким email уже существует",
             )
 
-        hashed_password = self.user_service.hash_password(password=user_data.password)
+        hashed_password = self.user_service.hash_password(
+            password=user_data.password,
+        )
+
         new_user = await self.user_storage.create_user(
             session=self.session,
             user=user_data,

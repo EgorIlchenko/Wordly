@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import ConfigDict, EmailStr, BaseModel, constr
+from pydantic import BaseModel, ConfigDict, EmailStr, constr
 
 
 class UserCreate(BaseModel):

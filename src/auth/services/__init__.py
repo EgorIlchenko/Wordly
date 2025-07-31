@@ -5,5 +5,5 @@ __all__ = (
 )
 
 from .registration_service import RegistrationService
-from .verification_service import VerificationService
 from .user_service import UserService
+from .verification_service import VerificationService

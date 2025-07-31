@@ -1,5 +1,3 @@
-__all__ = (
-    "BaseService",
-)
+__all__ = ("BaseService",)
 
 from .base import BaseService

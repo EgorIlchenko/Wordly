@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from users.models import User
 from auth.schemas import UserCreate
+from users.models import User
 
 
 class UserStorageProtocol(ABC):

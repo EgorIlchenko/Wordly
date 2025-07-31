@@ -2,8 +2,8 @@ from fastapi import HTTPException, status
 from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.service import BaseService
 from auth.schemas import UserCreate, UserRead
+from core.service import BaseService
 from users.crud import UserStorageProtocol
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -24,7 +24,7 @@ class UserService(BaseService):
     async def create_user(self, user_data: UserCreate) -> UserRead:
         existing = await self.storage.get_user_by_email(
             session=self.session,
-            email=user_data.email, # noqa
+            email=user_data.email,  # noqa
         )
         if existing:
             raise HTTPException(
