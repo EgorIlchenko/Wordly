@@ -4,8 +4,8 @@ from sqlalchemy import MetaData
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
 
-from core.config import get_settings
-from utils import camel_case_to_snake_case
+from core.settings import get_settings
+from utils.utils import camel_case_to_snake_case
 
 settings = get_settings()
 

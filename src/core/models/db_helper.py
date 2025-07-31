@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from core.config import get_settings
+from core.settings import get_settings
 
 settings = get_settings()
 

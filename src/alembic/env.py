@@ -7,9 +7,10 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
-from core.config import get_settings
+from core.settings import get_settings
 from core.models import Base
 from users.models import User
+from auth.models import EmailVerificationCode
 
 settings = get_settings()
 

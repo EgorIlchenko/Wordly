@@ -7,10 +7,42 @@ services:
       POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_DB: ${DB_NAME}
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: unless-stopped
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: wordly-rabbitmq
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${APP_CONFIG__RABBITMQ__USER}
+      RABBITMQ_DEFAULT_PASS: ${APP_CONFIG__RABBITMQ__PASSWORD}
+    env_file:
+      - src/.env
+    volumes:
+      - wordly_rabbitmq_data:/var/lib/rabbitmq
+      - ./src/rabbitmq-init.sh:/rabbitmq-init.sh:ro
+    command: [ "bash", "/rabbitmq-init.sh" ]
+
+  celery:
+    build:
+      context: .
+      dockerfile: src/Dockerfile
+    container_name: wordly-celery
+    command: celery -A core.celery_tasks.celery worker --loglevel=info
+    depends_on:
+      - rabbitmq
+    volumes:
+      - ./src:/src
+    env_file:
+      - src/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+
 volumes:
   pgdata:
+  wordly_rabbitmq_data:

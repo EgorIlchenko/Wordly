@@ -1,6 +1,9 @@
+import random
 from difflib import get_close_matches
 
 from spellchecker import SpellChecker
+
+from core.config import CODE_LENGTH, CUTOFF, NUMBER_OF_MATCHES
 
 spell = SpellChecker()
 
@@ -10,9 +13,14 @@ def validate_word(word: str) -> dict:
     if word in spell:
         return {"correct": True, "suggestions": []}
 
-    candidates = spell.candidates(word)
+    candidates = spell.candidates(word=word)
 
-    suggestions = get_close_matches(word, candidates, n=3, cutoff=0.8)
+    suggestions = get_close_matches(
+        word=word,
+        possibilities=candidates,
+        n=NUMBER_OF_MATCHES,
+        cutoff=CUTOFF,
+    )
 
     return {"correct": False, "suggestions": suggestions}
 
@@ -30,3 +38,7 @@ def camel_case_to_snake_case(input_str: str) -> str:
                 chars.append("_")
         chars.append(char.lower())
     return "".join(chars)
+
+
+def generate_code() -> str:
+    return "".join(str(random.randint(0, 9)) for _ in range(CODE_LENGTH))

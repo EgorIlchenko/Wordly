@@ -2,10 +2,11 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI
+from starlette.middleware.sessions import SessionMiddleware
 
 from api import router as api_router
-from core.config import get_settings
 from core.models import db_helper
+from core.settings import get_settings
 
 settings = get_settings()
 
@@ -23,6 +24,15 @@ main_app = FastAPI(
 )
 main_app.include_router(
     api_router,
+)
+
+main_app.add_middleware(
+    SessionMiddleware,  # noqa
+    secret_key=settings.middleware.session_secret_key,
+    session_cookie="wordly_session",
+    max_age=600,
+    same_site="lax",
+    https_only=False,
 )
 
 if __name__ == "__main__":
