@@ -53,6 +53,8 @@ class LangchainConfig(BaseModel):
 class RabbitMQConfig(BaseModel):
     user: str
     password: str
+    host: str
+    port: str
 
 
 class SMTPConfig(BaseModel):

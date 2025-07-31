@@ -1,0 +1,16 @@
+body {
+    background-color: #a474d8 !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.verify_form {
+    background-color: white;
+    width: 400px;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
