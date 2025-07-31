@@ -2,7 +2,6 @@ from fastapi import HTTPException, status
 from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .verification import EmailVerificationService
 from core.service import BaseService
 from auth.schemas import UserCreate, UserRead
 from users.crud import UserStorageProtocol
@@ -16,9 +15,8 @@ class UserService(BaseService):
         session: AsyncSession,
         storage: UserStorageProtocol,
     ):
-        super().__init__(session)
+        super().__init__(session=session)
         self.storage = storage
-        self.verification = EmailVerificationService(session)
 
     def hash_password(self, password: str) -> str:
         return pwd_context.hash(password)
@@ -26,7 +24,7 @@ class UserService(BaseService):
     async def create_user(self, user_data: UserCreate) -> UserRead:
         existing = await self.storage.get_user_by_email(
             session=self.session,
-            email=str(user_data.email),
+            email=user_data.email, # noqa
         )
         if existing:
             raise HTTPException(
@@ -42,15 +40,4 @@ class UserService(BaseService):
             hashed_password=hashed_pw,
         )
 
-        await self.verification.send_code(email=user.email)
-
         return UserRead.model_validate(user)
-
-    async def verify_email(self, email: str, code: str) -> None:
-        valid = await self.verification.validate_code(email=email, code=code)
-        if not valid:
-            raise HTTPException(status_code=400, detail="Код недействителен или истёк")
-
-        user = await self.storage.get_user_by_email(session=self.session, email=email)
-        user.is_verified = True
-        await self.session.commit()

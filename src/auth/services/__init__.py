@@ -1,7 +1,9 @@
 __all__ = (
-    "EmailVerificationService",
+    "RegistrationService",
+    "VerificationService",
     "UserService",
 )
 
-from .verification import EmailVerificationService
-from .user import UserService
+from .registration_service import RegistrationService
+from .verification_service import VerificationService
+from .user_service import UserService
