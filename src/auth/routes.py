@@ -1,23 +1,27 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from uuid import UUID as UUID_TYPE
+from uuid import uuid4
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from core.settings import templates
+from core.config import TIMEDELTA_SEC
+from core.settings import get_settings, templates
+from users.models import User
 
-from .dependencies import get_registration_service, get_verification_service
+from .dependencies import (
+    authenticate_user,
+    get_jwt_service,
+    get_registration_service,
+    get_verification_service,
+)
 from .schemas import UserCreate
-from .services import RegistrationService, VerificationService
+from .services import JWTService, RegistrationService, VerificationService
+
+settings = get_settings()
 
 router = APIRouter(
     tags=["Auth"],
 )
-
-
-@router.get("/login", response_class=HTMLResponse)
-async def get_login_page(request: Request):
-    return templates.TemplateResponse(
-        "login.html",
-        {"request": request},
-    )
 
 
 @router.get("/register", response_class=HTMLResponse)
@@ -104,3 +108,103 @@ async def post_verify_email(
             "verify_email.html",
             {"request": request, "email": email, "error": e.detail},
         )
+
+
+@router.get("/login", response_class=HTMLResponse)
+async def get_login_page(request: Request):
+    return templates.TemplateResponse(
+        "login.html",
+        {"request": request},
+    )
+
+
+@router.post("/login", response_class=RedirectResponse)
+async def login_user(
+    user: User = Depends(authenticate_user),
+    jwt_service: JWTService = Depends(get_jwt_service),
+    next: str | None = Query(default="/"),
+):
+    access_token, expire = jwt_service.create_access_token(user=user)
+    refresh_token, expire = jwt_service.create_refresh_token(user=user)
+
+    session_id = uuid4()
+    verifier, verifier_hash = jwt_service._generate_verifier_and_hash()
+
+    await jwt_service.record_refresh_token_in_db(
+        user=user,
+        refresh_token=refresh_token,
+        session_id=session_id,
+        expire=expire,
+        verifier_hash=verifier_hash,
+    )
+
+    redirect_url = next if next and next.startswith("/") else "/"
+    redirect = RedirectResponse(url=redirect_url, status_code=302)
+
+    redirect.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        max_age=(settings.auth_jwt.access_token_expire_minutes * 60) + TIMEDELTA_SEC,
+    )
+    redirect.set_cookie(
+        key="session_id",
+        value=str(session_id),
+        httponly=True,
+        max_age=(settings.auth_jwt.refresh_token_expire_days * 24 * 60 * 60) + TIMEDELTA_SEC,
+    )
+    redirect.set_cookie(
+        key="verifier",
+        value=verifier,
+        httponly=True,
+        max_age=(settings.auth_jwt.refresh_token_expire_days * 24 * 60 * 60) + TIMEDELTA_SEC,
+    )
+
+    return redirect
+
+
+@router.get("/refresh", response_class=RedirectResponse)
+async def auth_refresh_jwt(
+    request: Request,
+    jwt_service: JWTService = Depends(get_jwt_service),
+    next: str | None = Query(default="/"),
+):
+    session_id_str = request.cookies.get("session_id")
+    verifier = request.cookies.get("verifier")
+
+    if not session_id_str:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="No session ID",
+        )
+
+    try:
+        session_id = UUID_TYPE(session_id_str)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid session ID format",
+        )
+
+    new_access_token, new_verifier = await jwt_service.refresh_tokens(
+        session_id=session_id,
+        verifier=verifier,
+    )
+
+    redirect_url = next if next and next.startswith("/") else "/"
+    redirect = RedirectResponse(url=redirect_url, status_code=302)
+
+    redirect.set_cookie(
+        key="access_token",
+        value=new_access_token,
+        httponly=True,
+        max_age=(settings.auth_jwt.access_token_expire_minutes * 60) + TIMEDELTA_SEC,
+    )
+    redirect.set_cookie(
+        key="verifier",
+        value=new_verifier,
+        httponly=True,
+        max_age=(settings.auth_jwt.refresh_token_expire_days * 24 * 60 * 60) + TIMEDELTA_SEC,
+    )
+
+    return redirect
