@@ -57,3 +57,15 @@ profile = "black"
 line_length = 100
 known_first_party = ["app"]
 skip = ["alembic", "migrations", "env", "venv"]
+
+[tool.flake8]
+ignore = ["F401"]
+max-line-length = 100
+exclude = [
+    ".git",
+    "__pycache__",
+    "venv",
+    ".venv",
+    "alembic",
+    "tests",
+]
