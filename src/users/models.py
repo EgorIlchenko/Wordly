@@ -1,7 +1,12 @@
+from typing import TYPE_CHECKING, List
+
 from sqlalchemy import DateTime, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.models import Base
+
+if TYPE_CHECKING:
+    from auth.models import RefreshSession
 
 
 class User(Base):
@@ -25,4 +30,7 @@ class User(Base):
         DateTime(timezone=True),
         server_default=func.now(),
         onupdate=func.now(),
+    )
+    refresh_sessions: Mapped[List["RefreshSession"]] = relationship(
+        back_populates="user",
     )

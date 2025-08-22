@@ -29,6 +29,14 @@ class MiddlewareConfig(BaseSettings):
     session_secret_key: str
 
 
+class AuthJWTConfig(BaseSettings):
+    private_key_path: Path = BASE_DIR / "auth" / "certs" / "jwt-private.pem"
+    public_key_path: Path = BASE_DIR / "auth" / "certs" / "jwt-public.pem"
+    algorithm: str = "RS256"
+    access_token_expire_minutes: int = 1
+    refresh_token_expire_days: int = 30
+
+
 class DatabaseConfig(BaseModel):
     url: PostgresDsn
     echo: bool = False
@@ -80,6 +88,7 @@ class Settings(BaseSettings):
     rabbitmq: RabbitMQConfig
     smtp: SMTPConfig
     middleware: MiddlewareConfig
+    auth_jwt: AuthJWTConfig = AuthJWTConfig()
 
 
 @lru_cache
