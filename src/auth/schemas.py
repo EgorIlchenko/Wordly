@@ -26,3 +26,11 @@ class UserRead(BaseModel):
 class EmailVerificationCodeCreate(BaseModel):
     email: EmailStr
     code: str
+
+
+class RefreshSessionCreate(BaseModel):
+    session_id: UUID
+    user_id: UUID
+    refresh_token: str
+    expires_at: datetime
+    verifier_hash: str
