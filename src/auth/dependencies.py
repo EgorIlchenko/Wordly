@@ -11,7 +11,6 @@ from users.crud import SQLAlchemyUserStorage
 from users.models import User
 
 from .crud import SQLAlchemyEmailVerificationStorage
-from .exceptions import AuthException
 from .services import JWTService, VerificationService
 from .services.registration_service import RegistrationService
 from .utils import check_active_user, validate_password
@@ -94,19 +93,22 @@ def get_current_token_payload(
     token = request.cookies.get("access_token")
 
     if not token:
-        raise AuthException(
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not logged in",
-            redirect_to_login=True,
         )
 
     try:
         payload = jwt_service.decode_jwt(token=token)
     except ExpiredSignatureError:
-        raise AuthException(detail="Token expired")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token expired",
+        )
     except InvalidTokenError:
-        raise AuthException(
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token",
-            redirect_to_login=True,
         )
 
     return payload

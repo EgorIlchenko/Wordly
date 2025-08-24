@@ -1,13 +1,13 @@
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, Request
+from fastapi import Depends, FastAPI, Request, status
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.sessions import SessionMiddleware
 
 from api import router as api_router
 from auth.dependencies import get_current_active_auth_user
-from auth.exceptions import AuthException
 from core.models import db_helper
 from core.settings import get_settings, templates
 from users.models import User
@@ -42,13 +42,18 @@ main_app.add_middleware(
 main_app.mount("/assets", StaticFiles(directory="templates/assets"), name="assets")
 
 
-@main_app.exception_handler(AuthException)
-async def auth_exception_handler(request: Request, exc: AuthException):
-    next_url = f"?next={request.url.path}"
-    if exc.detail == "Token expired" and not exc.redirect_to_login:
-        return RedirectResponse(url=f"/api/v1/auth/refresh{next_url}")
+@main_app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    if exc.status_code == status.HTTP_401_UNAUTHORIZED:
+        if "text/html" in request.headers.get("Accept", ""):
+            if exc.detail and exc.detail.startswith("Token expired"):
+                next_url = f"?next={request.url.path}"
+                return RedirectResponse(url=f"/api/v1/auth/refresh{next_url}")
 
-    return RedirectResponse(url=f"/api/v1/auth/login{next_url}")
+            next_url = f"?next={request.url.path}"
+            return RedirectResponse(url=f"/api/v1/auth/login{next_url}")
+
+    return exc
 
 
 @main_app.get("/")
