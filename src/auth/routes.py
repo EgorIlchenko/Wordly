@@ -10,6 +10,7 @@ from users.models import User
 
 from .dependencies import (
     authenticate_user,
+    get_current_active_auth_user,
     get_jwt_service,
     get_registration_service,
     get_verification_service,
@@ -146,18 +147,21 @@ async def login_user(
         value=access_token,
         httponly=True,
         max_age=(settings.auth_jwt.access_token_expire_minutes * 60) + TIMEDELTA_SEC,
+        path="/",
     )
     redirect.set_cookie(
         key="session_id",
         value=str(session_id),
         httponly=True,
         max_age=(settings.auth_jwt.refresh_token_expire_days * 24 * 60 * 60) + TIMEDELTA_SEC,
+        path="/",
     )
     redirect.set_cookie(
         key="verifier",
         value=verifier,
         httponly=True,
         max_age=(settings.auth_jwt.refresh_token_expire_days * 24 * 60 * 60) + TIMEDELTA_SEC,
+        path="/",
     )
 
     return redirect
@@ -199,12 +203,29 @@ async def auth_refresh_jwt(
         value=new_access_token,
         httponly=True,
         max_age=(settings.auth_jwt.access_token_expire_minutes * 60) + TIMEDELTA_SEC,
+        path="/",
     )
     redirect.set_cookie(
         key="verifier",
         value=new_verifier,
         httponly=True,
         max_age=(settings.auth_jwt.refresh_token_expire_days * 24 * 60 * 60) + TIMEDELTA_SEC,
+        path="/",
     )
+
+    return redirect
+
+
+@router.post("/logout", response_class=RedirectResponse)
+async def logout_user_route(
+    current_user: User = Depends(get_current_active_auth_user),
+    jwt_service: JWTService = Depends(get_jwt_service),
+):
+    await jwt_service.logout_user(user=current_user)
+
+    redirect = RedirectResponse(url="/api/v1/auth/login", status_code=302)
+    redirect.delete_cookie(key="access_token", path="/")
+    redirect.delete_cookie(key="session_id", path="/")
+    redirect.delete_cookie(key="verifier", path="/")
 
     return redirect

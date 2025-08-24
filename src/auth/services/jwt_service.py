@@ -179,3 +179,10 @@ class JWTService(BaseService):
         await self.session.commit()
 
         return access_token, new_verifier
+
+    async def logout_user(self, user: User) -> None:
+        await self.refresh_session_storage.revoke_all_user_sessions(
+            session=self.session,
+            user_id=user.id,
+        )
+        await self.session.commit()
