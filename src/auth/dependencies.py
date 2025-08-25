@@ -1,3 +1,4 @@
+import urllib.parse
 from uuid import UUID
 
 from fastapi import Depends, Form, HTTPException, Request, status
@@ -5,15 +6,19 @@ from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.config import ACCESS_TOKEN_TYPE, TOKEN_TYPE_FIELD
+from core.config import ACCESS_TOKEN_TYPE, TOKEN_TYPE_FIELD, GOOGLE_AUTH_BASE_URL
 from core.models import db_helper
+from core.settings import get_settings
 from users.crud import SQLAlchemyUserStorage
 from users.models import User
 
 from .crud import SQLAlchemyEmailVerificationStorage
 from .services import JWTService, VerificationService
+from .services.google_auth_service import GoogleAuthService
 from .services.registration_service import RegistrationService
 from .utils import check_active_user, validate_password
+
+settings = get_settings()
 
 
 def get_registration_service(
@@ -51,6 +56,13 @@ def get_jwt_service(
     session: AsyncSession = Depends(db_helper.session_getter),
 ) -> JWTService:
     return JWTService(session=session)
+
+
+def get_google_auth_service(
+    session: AsyncSession = Depends(db_helper.session_getter),
+) -> GoogleAuthService:
+    user_storage = SQLAlchemyUserStorage()
+    return GoogleAuthService(session=session, user_storage=user_storage)
 
 
 async def authenticate_user(
@@ -152,3 +164,20 @@ async def get_current_active_auth_user(
         )
 
     return user
+
+
+def generate_google_oauth_redirect_uri() -> str:
+    query_params = {
+        "client_id": settings.google_auth.client_id,
+        "redirect_uri": "http://localhost:8001/api/v1/auth/google",
+        "response_type": "code",
+        "scope": " ".join([
+            "openid",
+            "profile",
+            "email",
+        ]),
+        "access_type": "offline",
+    }
+
+    query_string = urllib.parse.urlencode(query_params, quote_via=urllib.parse.quote)
+    return f"{GOOGLE_AUTH_BASE_URL}?{query_string}"
