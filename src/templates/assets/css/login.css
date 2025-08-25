@@ -12,11 +12,33 @@ body {
     width: 400px;
     padding: 2rem;
     border-radius: 12px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .wrap {
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+
+.button-advanced {
+    display: inline-block;
+    padding: 12px 24px;
+    background: linear-gradient(to right, #3498db, #2980b9);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.button-advanced:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 10px rgba(0, 0, 0, 0.15);
 }
