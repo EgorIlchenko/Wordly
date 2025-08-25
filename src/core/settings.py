@@ -37,6 +37,11 @@ class AuthJWTConfig(BaseSettings):
     refresh_token_expire_days: int = 30
 
 
+class GoogleAuthConfig(BaseSettings):
+    client_id: str
+    client_secret: str
+
+
 class DatabaseConfig(BaseModel):
     url: PostgresDsn
     echo: bool = False
@@ -89,6 +94,7 @@ class Settings(BaseSettings):
     smtp: SMTPConfig
     middleware: MiddlewareConfig
     auth_jwt: AuthJWTConfig = AuthJWTConfig()
+    google_auth: GoogleAuthConfig
 
 
 @lru_cache
