@@ -32,3 +32,12 @@ class RefreshSessionCreate(BaseModel):
     refresh_token: str
     expires_at: datetime
     verifier_hash: str
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    password: constr(min_length=8, max_length=20)
