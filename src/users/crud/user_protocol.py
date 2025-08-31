@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from auth.schemas import UserCreate
 from users.models import User
 
 
@@ -28,7 +28,6 @@ class UserStorageProtocol(ABC):
     async def create_user(
         self,
         session: AsyncSession,
-        user: UserCreate,
-        hashed_password: str,
+        **user_data: Any,
     ) -> User:
         pass

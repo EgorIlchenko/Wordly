@@ -5,11 +5,20 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, EmailStr, constr
 
 
-class UserCreate(BaseModel):
+class UserCreateWithPassword(BaseModel):
     email: EmailStr
     password: constr(min_length=8, max_length=20)
-    full_name: Optional[str] = None
+    full_name: str
     is_subscribed: bool = False
+
+
+class UserCreateFromOAuth(BaseModel):
+    email: EmailStr
+    full_name: str
+    avatar_url: Optional[str] = None
+    is_google_account: bool = True
+    is_verified: bool = True
+    is_subscribed: bool = True
 
 
 class UserRead(BaseModel):

@@ -10,6 +10,11 @@
 </head>
 <body>
 <form class="register_form" method="post" onsubmit="return validateForm()">
+    {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+    {% endif %}
     <div class="mb-3">
         <label for="exampleInputEmail1" class="form-label">Email address</label>
         <input type="email" class="form-control" name="email" value="{{ email or '' }}"
@@ -32,7 +37,7 @@
         <label class="form-check-label" for="exampleCheck1">Хочу получать рассылки</label>
     </div>
     <div class="mb-3 form-check">
-        <input type="checkbox" class="form-check-input" id="privacy_agree">
+        <input type="checkbox" class="form-check-input" id="privacy_agree" name="privacy_agree">
         <label class="form-check-label" for="exampleCheck1">Согласен на обработку персональных данных</label>
     </div>
     <div id="privacy_error" style="color:red; display:none;">

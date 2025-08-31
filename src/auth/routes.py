@@ -1,3 +1,4 @@
+import secrets
 from uuid import UUID as UUID_TYPE
 from uuid import uuid4
 
@@ -10,15 +11,19 @@ from users.models import User
 
 from .dependencies import (
     authenticate_user,
+    generate_google_oauth_redirect_uri,
     get_current_active_auth_user,
+    get_google_auth_service,
     get_jwt_service,
     get_registration_service,
     get_verification_service,
 )
-from .schemas import UserCreate
+from .schemas import UserCreateWithPassword
 from .services import JWTService, RegistrationService, VerificationService
+from .services.google_auth_service import GoogleAuthService
 
 settings = get_settings()
+
 
 router = APIRouter(
     tags=["Auth"],
@@ -42,6 +47,20 @@ async def register_user(
 ):
     form = await request.form()
 
+    if not form.get("privacy_agree"):
+        raw_data = {
+            "email": form.get("email"),
+            "full_name": form.get("full_name"),
+        }
+        return templates.TemplateResponse(
+            "register.html",
+            {
+                "request": request,
+                "error": "Необходимо согласиться на обработку персональных данных",
+                **raw_data,
+            },
+        )
+
     raw_data = {
         "email": form.get("email"),
         "password": form.get("password"),
@@ -50,7 +69,7 @@ async def register_user(
     }
 
     try:
-        user_data = UserCreate.model_validate(raw_data)
+        user_data = UserCreateWithPassword.model_validate(raw_data)
         await registration_service.register_user(
             user_data=user_data,
         )
@@ -167,6 +186,90 @@ async def login_user(
     return redirect
 
 
+@router.get("/google-login/redirect")
+def get_google_oauth_uri(
+    request: Request,
+):
+    state = secrets.token_urlsafe(nbytes=16)
+    request.session["oauth_state"] = state
+    redirect_uri = generate_google_oauth_redirect_uri(state=state)
+
+    return RedirectResponse(url=redirect_uri, status_code=302)
+
+
+@router.get("/google", response_class=RedirectResponse)
+async def get_google_oauth_code(
+    request: Request,
+    code: str = Query(...),
+    state: str = Query(...),
+    error: str = Query(None),
+    next: str | None = Query(default="/"),
+    google_service: GoogleAuthService = Depends(get_google_auth_service),
+    jwt_service: JWTService = Depends(get_jwt_service),
+):
+    session_state = request.session.pop("oauth_state", None)
+    if session_state is None or state != session_state:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid state parameter. CSRF attack detected.",
+        )
+
+    if error or not code:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Access denied by Google",
+        )
+
+    user = await google_service.get_user_from_google(code=code)
+
+    if not user or not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is inactive or not found",
+        )
+
+    access_token, expire = jwt_service.create_access_token(user=user)
+    refresh_token, expire = jwt_service.create_refresh_token(user=user)
+
+    session_id = uuid4()
+    verifier, verifier_hash = jwt_service._generate_verifier_and_hash()
+
+    await jwt_service.record_refresh_token_in_db(
+        user=user,
+        refresh_token=refresh_token,
+        session_id=session_id,
+        expire=expire,
+        verifier_hash=verifier_hash,
+    )
+
+    redirect_url = next if next and next.startswith("/") else "/"
+    redirect = RedirectResponse(url=redirect_url, status_code=302)
+
+    redirect.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        max_age=(settings.auth_jwt.access_token_expire_minutes * 60) + TIMEDELTA_SEC,
+        path="/",
+    )
+    redirect.set_cookie(
+        key="session_id",
+        value=str(session_id),
+        httponly=True,
+        max_age=(settings.auth_jwt.refresh_token_expire_days * 24 * 60 * 60) + TIMEDELTA_SEC,
+        path="/",
+    )
+    redirect.set_cookie(
+        key="verifier",
+        value=verifier,
+        httponly=True,
+        max_age=(settings.auth_jwt.refresh_token_expire_days * 24 * 60 * 60) + TIMEDELTA_SEC,
+        path="/",
+    )
+
+    return redirect
+
+
 @router.get("/refresh", response_class=RedirectResponse)
 async def auth_refresh_jwt(
     request: Request,
@@ -216,7 +319,7 @@ async def auth_refresh_jwt(
     return redirect
 
 
-@router.post("/logout", response_class=RedirectResponse)
+@router.get("/logout", response_class=RedirectResponse)
 async def logout_user_route(
     current_user: User = Depends(get_current_active_auth_user),
     jwt_service: JWTService = Depends(get_jwt_service),

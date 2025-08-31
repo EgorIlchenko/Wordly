@@ -10,6 +10,9 @@
 <body>
 <form class="verify_form" method="post">
     <div class="mb-3">
+        <label for="exampleInputEmail1" class="form-label">
+            На вашу почту <b>{{ email }}</b> был направлен код подтверждения!
+        </label>
         <label for="exampleInputEmail1" class="form-label">Введите код из письма</label>
         <input type="text" class="form-control" name="code" required>
         <input type="hidden" class="form-control" name="email" value="{{ email }}">
