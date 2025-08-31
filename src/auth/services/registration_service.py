@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from auth.schemas import UserCreate
+from auth.schemas import UserCreateWithPassword
 from auth.utils import hash_password
 from core.service import BaseService
 from users.crud import UserStorageProtocol
@@ -20,12 +20,19 @@ class RegistrationService(BaseService):
         self.user_storage = user_storage
         self.code_service = code_service
 
-    async def register_user(self, user_data: UserCreate) -> None:
+    async def register_user(self, user_data: UserCreateWithPassword) -> None:
         user = await self.user_storage.get_user_by_email(
             session=self.session,
             email=user_data.email,  # noqa
         )
         if user:
+            if user.is_google_account:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Этот email уже используется для входа через Google. "
+                    "Пожалуйста, войдите через Google.",
+                )
+
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Пользователь с таким email уже существует",
@@ -35,10 +42,13 @@ class RegistrationService(BaseService):
             password=user_data.password,
         )
 
+        db_user_data = user_data.model_dump()
+        del db_user_data["password"]
+        db_user_data["hashed_password"] = hashed_password
+
         new_user = await self.user_storage.create_user(
             session=self.session,
-            user=user_data,
-            hashed_password=hashed_password,
+            **db_user_data,
         )
 
         await self.code_service.send_code(email=new_user.email)
