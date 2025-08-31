@@ -9,12 +9,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.config import ACCESS_TOKEN_TYPE, GOOGLE_AUTH_BASE_URL, TOKEN_TYPE_FIELD
 from core.models import db_helper
 from core.settings import get_settings
-from users.crud import SQLAlchemyUserStorage
+from users.crud import get_user_storage
 from users.models import User
 
 from .crud import SQLAlchemyEmailVerificationStorage
+from .crud.sqlalchemy_password_reset import SQLAlchemyPasswordResetStorage
 from .services import JWTService, VerificationService
 from .services.google_auth_service import GoogleAuthService
+from .services.password_reset_service import PasswordResetService
 from .services.registration_service import RegistrationService
 from .utils import check_active_user, validate_password
 
@@ -24,7 +26,7 @@ settings = get_settings()
 def get_registration_service(
     session: AsyncSession = Depends(db_helper.session_getter),
 ) -> RegistrationService:
-    user_storage = SQLAlchemyUserStorage()
+    user_storage = get_user_storage()
     code_storage = SQLAlchemyEmailVerificationStorage()
     code_service = VerificationService(
         session=session,
@@ -42,7 +44,7 @@ def get_registration_service(
 def get_verification_service(
     session: AsyncSession = Depends(db_helper.session_getter),
 ) -> VerificationService:
-    user_storage = SQLAlchemyUserStorage()
+    user_storage = get_user_storage()
     code_storage = SQLAlchemyEmailVerificationStorage()
 
     return VerificationService(
@@ -61,8 +63,30 @@ def get_jwt_service(
 def get_google_auth_service(
     session: AsyncSession = Depends(db_helper.session_getter),
 ) -> GoogleAuthService:
-    user_storage = SQLAlchemyUserStorage()
+    user_storage = get_user_storage()
     return GoogleAuthService(session=session, user_storage=user_storage)
+
+
+def get_password_reset_service(
+    session: AsyncSession = Depends(db_helper.session_getter),
+) -> PasswordResetService:
+    user_storage = get_user_storage()
+    reset_token_storage = SQLAlchemyPasswordResetStorage()
+    code_storage = SQLAlchemyEmailVerificationStorage()
+    jwt_service = JWTService(session=session)
+    code_service = VerificationService(
+        session=session,
+        user_storage=user_storage,
+        code_storage=code_storage,
+    )
+
+    return PasswordResetService(
+        session=session,
+        user_storage=user_storage,
+        reset_token_storage=reset_token_storage,
+        jwt_service=jwt_service,
+        code_service=code_service,
+    )
 
 
 async def authenticate_user(
@@ -74,7 +98,7 @@ async def authenticate_user(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Incorrect email or password",
     )
-    user_storage = SQLAlchemyUserStorage()
+    user_storage = get_user_storage()
 
     user = await user_storage.get_user_by_email(
         session=session,
@@ -130,7 +154,7 @@ async def get_current_auth_user(
     payload: dict = Depends(get_current_token_payload),
     session: AsyncSession = Depends(db_helper.session_getter),
 ) -> User:
-    user_storage = SQLAlchemyUserStorage()
+    user_storage = get_user_storage()
 
     token_type = payload.get(TOKEN_TYPE_FIELD)
     if token_type != ACCESS_TOKEN_TYPE:

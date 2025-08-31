@@ -92,6 +92,9 @@ class GoogleAuthService:
             **db_user_data,
         )
 
+        await self.session.commit()
+        await self.session.refresh(user)
+
         return user
 
     async def get_user_from_google(self, code: str) -> User:

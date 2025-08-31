@@ -51,4 +51,7 @@ class RegistrationService(BaseService):
             **db_user_data,
         )
 
+        await self.session.commit()
+        await self.session.refresh(new_user)
+
         await self.code_service.send_code(email=new_user.email)

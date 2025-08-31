@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Dict
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -29,5 +29,14 @@ class UserStorageProtocol(ABC):
         self,
         session: AsyncSession,
         **user_data: Any,
+    ) -> User:
+        pass
+
+    @abstractmethod
+    async def update_user(
+        self,
+        session: AsyncSession,
+        user: User,
+        data: Dict[str, Any],
     ) -> User:
         pass
