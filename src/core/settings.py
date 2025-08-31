@@ -40,6 +40,7 @@ class AuthJWTConfig(BaseSettings):
 class GoogleAuthConfig(BaseSettings):
     client_id: str
     client_secret: str
+    redirect_uri: str
 
 
 class DatabaseConfig(BaseModel):
