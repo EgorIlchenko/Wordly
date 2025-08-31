@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Dict
 from uuid import UUID
 
 from sqlalchemy import select
@@ -36,10 +36,21 @@ class SQLAlchemyUserStorage(UserStorageProtocol):
         new_user = User(**user_data)
 
         session.add(new_user)
-        await session.commit()
-        await session.refresh(new_user)
 
         return new_user
+
+    async def update_user(
+        self,
+        session: AsyncSession,
+        user: User,
+        data: Dict[str, Any],
+    ) -> User:
+        for key, value in data.items():
+            setattr(user, key, value)
+
+        session.add(user)
+
+        return user
 
 
 def get_user_storage() -> UserStorageProtocol:
