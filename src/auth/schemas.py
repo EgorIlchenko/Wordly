@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, EmailStr, constr
+from pydantic import BaseModel, EmailStr, constr
 
 
 class UserCreateWithPassword(BaseModel):
@@ -19,17 +19,6 @@ class UserCreateFromOAuth(BaseModel):
     is_google_account: bool = True
     is_verified: bool = True
     is_subscribed: bool = True
-
-
-class UserRead(BaseModel):
-    id: UUID
-    email: EmailStr
-    full_name: Optional[str] = None
-    avatar_url: Optional[str] = None
-    is_verified: bool
-    created_at: datetime
-
-    model_config = ConfigDict(from_attributes=True)
 
 
 class EmailVerificationCodeCreate(BaseModel):
