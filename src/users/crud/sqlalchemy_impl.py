@@ -1,9 +1,9 @@
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from auth.schemas import UserCreate
 from users.models import User
 
 from .user_protocol import UserStorageProtocol
@@ -31,15 +31,10 @@ class SQLAlchemyUserStorage(UserStorageProtocol):
     async def create_user(
         self,
         session: AsyncSession,
-        user: UserCreate,
-        hashed_password: str,
+        **user_data: Any,
     ) -> User:
-        new_user = User(
-            email=str(user.email),
-            full_name=user.full_name,
-            hashed_password=hashed_password,
-            is_subscribed=user.is_subscribed,
-        )
+        new_user = User(**user_data)
+
         session.add(new_user)
         await session.commit()
         await session.refresh(new_user)
