@@ -46,3 +46,25 @@ class RefreshSession(Base):
 
     def is_expired(self) -> bool:
         return datetime.now(timezone.utc) > self.expires_at
+
+
+class PasswordResetToken(Base):
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey(
+            "users.id",
+            ondelete="CASCADE",
+        ),
+        unique=True,
+    )
+    hashed_token: Mapped[str] = mapped_column(nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+    )
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc) + timedelta(minutes=10),
+    )
+
+    def is_expired(self) -> bool:
+        return datetime.now(timezone.utc) > self.expires_at
