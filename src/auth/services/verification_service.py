@@ -39,6 +39,7 @@ class VerificationService(BaseService):
             session=self.session,
             code=code_obj,
         )
+        await self.session.commit()
 
         send_verification_email.delay(email=email, code=code)
 
@@ -63,6 +64,7 @@ class VerificationService(BaseService):
             session=self.session,
             email=email,
         )
+        await self.session.commit()
 
         return True
 
