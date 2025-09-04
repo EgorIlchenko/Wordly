@@ -5,14 +5,12 @@ from uuid import uuid4
 from fastapi import (
     APIRouter,
     Depends,
-    Form,
     HTTPException,
     Query,
     Request,
     status,
 )
 from fastapi.responses import HTMLResponse, RedirectResponse
-from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.config import TIMEDELTA_SEC
@@ -30,7 +28,11 @@ from .dependencies import (
     get_registration_service,
     get_verification_service,
 )
-from .schemas import UserCreateWithPassword
+from .schemas import (
+    ForgotPasswordRequest,
+    ResetPasswordRequest,
+    UserCreateWithPassword,
+)
 from .services import JWTService, RegistrationService, VerificationService
 from .services.google_auth_service import GoogleAuthService
 from .services.password_reset_service import PasswordResetService
@@ -373,10 +375,14 @@ async def get_forgot_password_page(request: Request):
 @router.post("/forgot-password")
 async def handle_forgot_password_form(
     request: Request,
-    email: EmailStr = Form(...),
     reset_service: PasswordResetService = Depends(get_password_reset_service),
 ):
-    await reset_service.request_password_reset(email=str(email))
+    form = await request.form()
+    raw_data = {"email": form.get("email")}
+
+    forgot_password_form = ForgotPasswordRequest.model_validate(raw_data)
+
+    await reset_service.request_password_reset(email=str(forgot_password_form.email))
     return templates.TemplateResponse(
         "forgot_password_success.html",
         {"request": request},
@@ -397,13 +403,20 @@ async def get_reset_password_page(
 @router.post("/reset-password")
 async def handle_reset_password_form(
     request: Request,
-    token: str = Form(...),
-    password: str = Form(...),
     reset_service: PasswordResetService = Depends(get_password_reset_service),
 ):
+    form = await request.form()
+
+    raw_data = {
+        "token": form.get("email"),
+        "password": form.get("password"),
+    }
+
+    reset_password_form = ResetPasswordRequest.model_validate(raw_data)
+
     await reset_service.reset_password(
-        token=token,
-        new_password=password,
+        token=reset_password_form.token,
+        new_password=reset_password_form.password,
     )
     return RedirectResponse(
         url="/api/v1/auth/login?message=Password+has+been+reset+successfully",
