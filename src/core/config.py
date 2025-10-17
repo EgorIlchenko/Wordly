@@ -1,3 +1,9 @@
 CODE_LENGTH = 6
 NUMBER_OF_MATCHES = 3
 CUTOFF = 0.8
+TOKEN_TYPE_FIELD = "type"
+ACCESS_TOKEN_TYPE = "access"
+REFRESH_TOKEN_TYPE = "refresh"
+TIMEDELTA_SEC = 300
+GOOGLE_AUTH_BASE_URL = "https://accounts.google.com/o/oauth2/v2/auth"
+GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"

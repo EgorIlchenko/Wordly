@@ -1,7 +1,12 @@
+from typing import TYPE_CHECKING, List
+
 from sqlalchemy import DateTime, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.models import Base
+
+if TYPE_CHECKING:
+    from auth.models import RefreshSession
 
 
 class User(Base):
@@ -10,7 +15,7 @@ class User(Base):
         nullable=False,
         index=True,
     )
-    hashed_password: Mapped[str] = mapped_column(nullable=False)
+    hashed_password: Mapped[str] = mapped_column(nullable=True)
     full_name: Mapped[str] = mapped_column(nullable=True)
     avatar_url: Mapped[str] = mapped_column(nullable=True)
     is_active: Mapped[bool] = mapped_column(default=True)
@@ -25,4 +30,7 @@ class User(Base):
         DateTime(timezone=True),
         server_default=func.now(),
         onupdate=func.now(),
+    )
+    refresh_sessions: Mapped[List["RefreshSession"]] = relationship(
+        back_populates="user",
     )

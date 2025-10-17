@@ -1,9 +1,9 @@
 __all__ = (
+    "JWTService",
     "RegistrationService",
     "VerificationService",
-    "UserService",
 )
 
+from .jwt_service import JWTService
 from .registration_service import RegistrationService
-from .user_service import UserService
 from .verification_service import VerificationService

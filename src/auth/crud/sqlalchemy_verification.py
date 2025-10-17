@@ -20,7 +20,6 @@ class SQLAlchemyEmailVerificationStorage(EmailVerificationStorageProtocol):
             code=code.code,
         )
         session.add(new_code)
-        await session.commit()
 
     async def get_valid_code(
         self,
@@ -46,4 +45,3 @@ class SQLAlchemyEmailVerificationStorage(EmailVerificationStorageProtocol):
             EmailVerificationCode.email == email,
         )
         await session.execute(stmt)
-        await session.commit()
